@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 from googlemaps.exceptions import ApiError
 import sys
 import getopt
@@ -33,6 +32,18 @@ def display_array(data):
         print(f'{company["name"]:<{line_centeting}} \
                 {company["formatted_address"]:^{line_centeting}} \
                 {company["place_id"]:>{line_centeting}}')
+
+
+def record_json():
+    pass
+
+
+def get_all_details(g, data):
+    companies_details = []
+    for company in data:
+        details = g.get_details(company['place_id'])
+        companies_details.append(details)
+    return companies_details
 
 
 def main(params):
@@ -74,6 +85,7 @@ def main(params):
         with open(params['TEST_FILE']) as content_file:
             result = json.loads(content_file.read())
             display_array(result['results'])
+            get_all_details(gmaps, result['results'])
 
 
 main(params)

@@ -29,3 +29,19 @@ class Gsearch():
         while self.next is not None and i <= self.max_pages:
             yield self.r(query)
             i += 1
+
+    def get_details(self, id):
+        result = {}
+        try:
+            result =  self.gmaps.place(id, fields=[
+                'formatted_address',
+                'address_component',
+                'formatted_phone_number',
+                'website',
+                'name',
+                'id'
+                ])
+        except ApiError as err:
+            print(f'{err}, exit program')
+            sys.exit(-1)
+        return result
