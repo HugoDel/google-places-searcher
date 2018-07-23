@@ -14,7 +14,7 @@ params = {
     'TEST': False,
     'MAX_RES': 20,
     'TEST_FILE': os.path.join(os.getcwd(), 'exemple_data.json'),
-    'API_KEY': 'AIzaSyDA7iAQDNQCKRIHll9PNrOHmV43ZzxjMo4'
+    'API_KEY': ''
 }
 
 
