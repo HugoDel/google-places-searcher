@@ -5,6 +5,7 @@ import getopt
 import os
 import json
 import time
+from personal_settings import api_key
 from datetime import datetime
 from gsearch import Gsearch
 
@@ -14,7 +15,7 @@ params = {
     'TEST': False,
     'MAX_RES': 20,
     'TEST_FILE': os.path.join(os.getcwd(), 'exemple_data.json'),
-    'API_KEY': ''
+    'API_KEY': api_key,
 }
 
 
