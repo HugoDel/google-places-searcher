@@ -10,11 +10,14 @@ from gsearch import Gsearch
 
 # Base params used by default
 params = {
-    'ARGS_OPTIONS_AVAILABLE': 'tf:n:q:',
+    'ARGS_OPTIONS_AVAILABLE': 'tf:n:q:o:sk',
     'TEST': False,
     'MAX_RES': 20,
     'TEST_FILE': os.path.join(os.getcwd(), 'exemple_data.json'),
     'API_KEY': api_key,
+    'OUTPUT_FILE': os.path.join(os.getcwd(), 'results.json'),
+    'SAVE': False,
+    'MODE': 'w' # Default writing mode for result file
 }
 
 
@@ -34,15 +37,33 @@ def display_array(data):
                 {company["place_id"]:>{line_centeting}}')
 
 
-def record_json():
-    pass
+def record_json(file_path, data, mode='w'):
+    if mode == 'a':
+        print(f'Reading existing data from {file_path}')
+        current_data = []
+        try:
+            with open(file_path, 'r') as f:
+                current_data = json.load(f)
+            for e in current_data:
+                data.append(e)
+        except OSError as err:
+            print(f"Sorry, {file_path} didn't exist \n{err}")
+        except json.JSONDecodeError as err:
+            print(f"Can't decode the json file {file_path}. The data will be errase in 5s")
+            print('CTRL+C to exit')
+            print(f'{err}')
+            time.sleep(5)
+    print(f'Writing into file {file_path}')
+    with open(file_path, 'w') as f:
+        json.dump(data, f, indent=4, sort_keys=True)
+    print('Done.')
 
 
 def get_all_details(g, data):
     companies_details = []
     for company in data:
         details = g.get_details(company['place_id'])
-        companies_details.append(details)
+        companies_details.append(details["result"])
     return companies_details
 
 
@@ -63,6 +84,12 @@ def main(params):
             params['MAX_RES'] = round(int(a)/20)
         if o == '-q':
             query = a
+        if o == '-o':
+            params['OUTPUT_FILE'] = a
+        if o == '-s':
+            params['SAVE'] = True
+        if o == '-k':
+            params['MODE'] = 'a'
 
     if params['TEST']:
         print('Using test data from ', params['TEST_FILE'])
@@ -78,14 +105,20 @@ def main(params):
 
     if not params['TEST']:
         data = gmaps.request_data(query)
+        details_results = []
         for page in data:
             display_array(page['results'])
+            if params['SAVE']:
+                details_results.append(get_all_details(gmaps, page['results']))
             time.sleep(2)
+        if params['SAVE']:
+            record_json(params['OUTPUT_FILE'], details_results[0], mode=params['MODE'])
+
     else:
         with open(params['TEST_FILE']) as content_file:
             result = json.loads(content_file.read())
             display_array(result['results'])
-            get_all_details(gmaps, result['results'])
+            record_json(params['OUTPUT_FILE'], get_all_details(gmaps, result['results']), mode=params['MODE'])
 
 
 main(params)
